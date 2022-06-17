@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Tensor Flow Object Detection from getUserMedia</title>
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <style>
+        video {
+            top: 0px;
+            left: 0px;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            object-fit: cover;
+            z-index: -1;
+            /* Mirror the local video */
+            transform: scale(-1, 1);
+            /*For Firefox (& IE) */
+            -webkit-transform: scale(-1, 1);
+            /*for Chrome & Opera (& Safari) */
+        }
+
+        canvas {
+            top: 0px;
+            left: 0px;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            z-index: 1;
+            object-fit: cover;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="./libs/axiosConfig.js"></script>
+    <video id="player" autoplay></video>
+    <script type="text/javascript">
+        var constraints = { video: { framerate: 30, width: 1280, height: 960 }, audio: false };
+        navigator.mediaDevices.getUserMedia(constraints).then(function success(stream) {
+            player.srcObject = stream;
+            stream.getTracks().forEach(function (track) {
+                console.log(track.getSettings());
+            })
+        }); 
+    </script>
+
+    <script id="objDetect" src="./libs/objDetect.js" data-source="player" data-mirror="true" data-uploadWidth="1280"
+        data-scoreThreshold="0.0" data-apiServer="http://127.0.0.1:8080"></script>
+</body>
+
+</html>

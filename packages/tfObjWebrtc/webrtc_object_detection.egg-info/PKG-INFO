@@ -1,0 +1,4 @@
+Metadata-Version: 2.1
+Name: webrtc-object-detection
+Version: 0.1
+Summary: Tensorflow Object Detection with WebRTC

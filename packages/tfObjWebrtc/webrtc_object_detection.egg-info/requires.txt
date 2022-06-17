@@ -1,0 +1,5 @@
+Pillow>=1.0
+Flask
+tensorflow
+six
+matplotlib

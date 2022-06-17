@@ -1,0 +1,142 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device‐width,initial‐scale=1.0,maximum‐scale=1.0,user‐
+scalable=0">
+    <meta name="apple‐mobile‐web‐app‐capable" content="yes">
+    <meta name="apple‐mobile‐web‐app‐status‐bar‐style" content="black">
+    <meta name="format‐detection" content="telephone=no">
+    <script src="./libs/three.js"></script>
+    <script src="./libs/mxreality.js"></script>
+    <title>My-VR-PAGE</title>
+    <style>
+        #drawCanvas {
+            top: 0px;
+            left: 0px;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="player" style="position:absolute;width: 100%;height: 100%; overflow: hidden;padding: 0px; margin: 0px;">
+    </div>
+</body>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="./libs/axiosConfig.js"></script>
+<script language="javascript" type="text/javascript">
+    var vrObj = null
+    window.onload = function () {
+        init();
+    }
+    //var vr=new VR(scene,renderer,container);
+
+    function base64ToBlob(b64) {
+        let mime = 'image/png'
+        let bytes = window.atob(b64);
+        let ab = new ArrayBuffer(bytes.length);
+        let ia = new Uint8Array(ab);
+        for (let i = 0; i < bytes.length; i++) {
+            ia[i] = bytes.charCodeAt(i);
+        }
+        return new Blob([ab], { type: mime });
+    }
+    function init() {
+        var scene, renderer;
+        var container;
+        renderer = new THREE.WebGLRenderer();
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container = document.getElementById('player');
+        container.appendChild(renderer.domElement);
+
+        scene = new THREE.Scene();
+
+        // fov 选项可调整初始视频远近
+        var vr = new VR(scene, renderer, container, { "fov": 50 });
+
+        //vr.playText="<img src='img/play90.png' width='40' height='40'/>";
+        vr.vrbox.radius = 600;
+        if (AVR.isCrossScreen()) {
+            // 调整vr视窗偏移量
+            vr.effect.separation = 1.2;
+        }
+        vr.loadProgressManager.onLoad = function () {
+            // 视频静音
+            // vr.video.muted=true;
+        }
+        //AVR.useGyroscope=false;
+        vr.init(function () {
+
+        });
+
+        vr.play('./video/els.mp4', vr.resType.video);
+        vr.video.setAttribute("loop", "loop");
+        vr.video.crossOrigin = "Anonymous";
+
+        vr.video.onended = function () {
+        }
+
+        var intervalId = null
+        var screenshot = null
+        vr.video.onplay = function () {
+            intervalId = setInterval(() => {
+                // 定时检测人脸
+                // TODO:按键检测人脸
+                vr.takeScreenShot(function (screenshotImg) {
+                    let params = new FormData()
+                    params.append('image', screenshotImg)
+                    screenshot = screenshotImg
+                    // axios.post('/face_recognition', params).then((res) => {
+                    //     if (res.data.det) {
+                    //         let ret_img = res.data.img_stream;
+                    //         let ret_blob = base64ToBlob(ret_img)
+                    //         let a = document.createElement("a"),
+                    //             objUrl = URL.createObjectURL(ret_blob);
+                    //         a.setAttribute("href", objUrl);
+                    //         a.download = "filename"
+                    //         a.click();
+                    //         window.URL.revokeObjectURL(screenshotImg);
+                    //     } else {
+                    //         console.log('none')
+                    //     }
+                    // }).catch((err) => {
+                    //     console.log(err)
+                    // })
+                    axios.post('/object_detection_v3', params).then((res) => {
+                        if (res.data) {
+                            // console.log(res.data)
+                            objects = res.data.objects
+                            drawBoxes(objects)
+                        }
+                    }).catch((err) => {
+                        console.log(err)
+                    })
+                })
+            }, 1000);
+        }
+        vr.video.onpause = function () {
+            if (intervalId) {
+                clearInterval(intervalId)
+                intervalId = null
+            }
+            else {
+
+            }
+        }
+
+        vrObj = vr
+
+    }
+
+
+
+</script>
+<script src="./libs/object_detection.js"></script>
+
+</html>

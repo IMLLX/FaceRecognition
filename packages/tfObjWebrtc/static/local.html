@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Tensor Flow Object Detection from getUserMedia</title>
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <style>
+
+        video {
+            top: 0px;
+            left: 0px;
+            width: 100%;  
+            height: 100%;
+            position: absolute;
+            object-fit: cover;
+            z-index: -1;
+            /* Mirror the local video */
+            transform: scale(-1, 1);            /*For Firefox (& IE) */
+            -webkit-transform: scale(-1, 1);     /*for Chrome & Opera (& Safari) */
+           }
+        canvas{
+            top: 0px;
+            left: 0px;
+            width: 100%;  
+            height: 100%;
+            position: absolute;
+            object-fit: cover;
+            z-index:1
+        }
+    </style>
+</head>
+<body>
+<video id="myVideo" autoplay></video>  
+<script type="text/javascript">
+var constraints = {video: {framerate:30,width:1280,height:960}, audio: false};
+navigator.mediaDevices.getUserMedia(constraints).then(function success(stream) {
+	myVideo.srcObject = stream;
+	stream.getTracks().forEach(function(track) {
+		console.log(track.getSettings());
+      	})
+}); 
+</script>  
+<script id="objDetect" src="/static/objDetect.js" data-source="myVideo" data-mirror="true" data-uploadWidth="1280" data-scoreThreshold="0.40"></script>
+</body>
+</html>
