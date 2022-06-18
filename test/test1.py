@@ -1,16 +1,18 @@
+import time
+
 import cv2
 import dlib
 import dlib
 import cv2
 import numpy as np
 
-predictor_path = ".\\dat\\shape_predictor_68_face_landmarks.dat"
+predictor_path = "../dat/shape_predictor_68_face_landmarks.dat"
+video_path = "../html/video/middleschool.mp4"
 
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor(predictor_path)
-# tracker = dlib.correlation_tracker()
 
-cam = cv2.VideoCapture(0)
+cam = cv2.VideoCapture(video_path)
 cam.set(3, 1280)
 cam.set(4, 720)
 
@@ -68,19 +70,28 @@ if __name__ == '__main__':
     old_frame = frame
     old_gray = cv2.cvtColor(old_frame, cv2.COLOR_BGR2GRAY)
 
-    cv2.imshow('cam', frame)
     curr_frame += 1
+
+    face_rec_cost_time = []
+    optical_flow_cost_time = []
 
     while True:
         ret_val, frame = cam.read()
 
         if ret_val:  # if next frame
             if curr_frame % frame_rate == 0:  # 1s
+                start = time.time()
+
                 dets, frame, p0 = detect_track_face(frame)
                 old_frame = frame
                 old_gray = cv2.cvtColor(old_frame, cv2.COLOR_BGR2GRAY)
 
+                cost = time.time() - start
+                face_rec_cost_time.append(cost)
+
             elif len(dets):
+                start = time.time()
+
                 frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 p1, st, err = cv2.calcOpticalFlowPyrLK(old_gray,
                                                        frame_gray,
@@ -93,14 +104,16 @@ if __name__ == '__main__':
                 old_gray = frame_gray.copy()
                 good_new = np.array([p1[i] for i in range(len(p1)) if st[i] == 1]).astype('float32')
                 p0 = good_new
-                for p in good_new:
-                    cv2.circle(frame, (int(p[0]), int(p[1])), 2, (0, 255, 0), -1)
-                _left, _right = get_bounding_rect(good_new)
-                cv2.rectangle(frame, _left,
-                              _right,
-                              color_white, line_width)
+
+                cost = time.time() - start
+                optical_flow_cost_time.append(cost)
             curr_frame += 1
-            cv2.imshow('cam', frame)
+            rec_average_cost_time = np.asarray(face_rec_cost_time).mean()
+            opt_average_cost_time = np.asarray(optical_flow_cost_time).mean()
+
+            print(
+                f'face recognition cost time: {rec_average_cost_time} \noptical flow calculate cost time: '
+                f'{opt_average_cost_time}')
         if cv2.waitKey(1) == 27:
             break  # esc to quit
     cv2.destroyAllWindows()

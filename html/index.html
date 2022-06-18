@@ -86,31 +86,13 @@ scalable=0">
         var screenshot = null
         vr.video.onplay = function () {
             intervalId = setInterval(() => {
-                // 定时检测人脸
-                // TODO:按键检测人脸
                 vr.takeScreenShot(function (screenshotImg) {
                     let params = new FormData()
                     params.append('image', screenshotImg)
                     screenshot = screenshotImg
-                    // axios.post('/face_recognition', params).then((res) => {
-                    //     if (res.data.det) {
-                    //         let ret_img = res.data.img_stream;
-                    //         let ret_blob = base64ToBlob(ret_img)
-                    //         let a = document.createElement("a"),
-                    //             objUrl = URL.createObjectURL(ret_blob);
-                    //         a.setAttribute("href", objUrl);
-                    //         a.download = "filename"
-                    //         a.click();
-                    //         window.URL.revokeObjectURL(screenshotImg);
-                    //     } else {
-                    //         console.log('none')
-                    //     }
-                    // }).catch((err) => {
-                    //     console.log(err)
-                    // })
                     axios.post('/object_detection_v3', params).then((res) => {
                         if (res.data) {
-                            // console.log(res.data)
+                            console.log(res.data.objects)
                             objects = res.data.objects
                             drawBoxes(objects)
                         }
@@ -124,9 +106,6 @@ scalable=0">
             if (intervalId) {
                 clearInterval(intervalId)
                 intervalId = null
-            }
-            else {
-
             }
         }
 

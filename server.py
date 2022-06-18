@@ -72,14 +72,12 @@ def object_detection_v1():
 def object_detection_v3():
     # object-api
     try:
-        # image_file = request.files['image']  # get the image
         image_file_str = request.values.get('image')
         threshold = request.values.get('threshold')
         b64str = image_file_str.split(',')[1]
         image = np.frombuffer(base64.b64decode(b64str), np.uint8)
         image = cv2.imdecode(image, cv2.IMREAD_COLOR)
 
-        image_shape = image.shape
         objects = object_detection_api_v3.get_objects(image)
         res = {
             'objects': objects,
