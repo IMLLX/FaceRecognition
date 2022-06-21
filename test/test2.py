@@ -102,8 +102,8 @@ if __name__ == '__main__':
     for i in range(len(origin_con_frame)):
         origin_frame = origin_con_frame[i]
         detected_frame_curr = detected_frame[i]
-        cv2.imwrite(f'./process_image/frame_{i}.png', origin_frame)
-        cv2.imwrite(f'./output/recognition/frame_{i}.png', detected_frame_curr)
+        cv2.imwrite(f'./process_image/middleschool/recognition/frame_{i}.png', origin_frame)
+        cv2.imwrite(f'./output/middleschool/recognition/frame_{i}.png', detected_frame_curr)
         good_new = []
         if i == 1:
             dets, frame, p0 = detect_track_face(origin_frame)
@@ -129,5 +129,5 @@ if __name__ == '__main__':
             for p in p1:
                 cv2.circle(p0_frame, (int(p[0]), int(p[1])), 2, (0, 255, 0), -1)
             p0 = p1
-            cv2.imwrite(f'./output/optical/p0/frame_{i}_{len(p1)}_point.png', p0_frame)
-            cv2.imwrite(f'./output/optical/select_good/frame_{i}_{len(good_new)}_point.png', good_new_frame)
+            cv2.imwrite(f'./output/middleschool/optical/p0/frame_{i}_{len(p1)}_point.png', p0_frame)
+            cv2.imwrite(f'./output/middleschool/optical/select_good/frame_{i}_{len(good_new)}_point.png', good_new_frame)
